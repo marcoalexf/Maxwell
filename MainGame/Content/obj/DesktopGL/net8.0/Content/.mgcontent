@@ -6,8 +6,10 @@
   <SourceFiles>
     <File>C:/Users/Marco/Desktop/Maxwell/MainGame/Content/CharacterSheet.png</File>
     <File>C:/Users/Marco/Desktop/Maxwell/MainGame/Content/player.png</File>
+    <File>C:/Users/Marco/Desktop/Maxwell/MainGame/Content/projectile.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>

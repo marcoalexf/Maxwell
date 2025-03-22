@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.Animations;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Input.InputListeners;
 using System;
@@ -11,7 +10,14 @@ using System.Diagnostics;
 
 namespace MainGame.Entities;
 
-public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Vector2 position = default)
+enum PlayerAnimations
+{
+    Idle,
+    Attack,
+    Move
+}
+
+public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Game1 gameInstance, Vector2 position = default)
 {
     private SpriteSheet _spriteSheet;
     private AnimatedSprite _playerAnimatedSprite;
@@ -19,6 +25,10 @@ public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Vect
     private KeyboardListener _keyboardListener;
 
     SpriteEffects facingRight = SpriteEffects.None;
+
+    private readonly float fireCooldown = 0.5f;
+    private float timeSinceLastShot = 0f;
+
 
     public void LoadContent()
     {
@@ -101,6 +111,19 @@ public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Vect
             position.X += speed * deltaTime;
         }
 
+        // ✅ Update cooldown timer
+        if (timeSinceLastShot > 0)
+        {
+            timeSinceLastShot -= deltaTime;
+        }
+
+        // ✅ Fire a bullet if SPACE is pressed and cooldown is ready
+        if (state.IsKeyDown(Keys.Space) && timeSinceLastShot <= 0)
+        {
+            FireBullet();
+            timeSinceLastShot = fireCooldown; // Reset cooldown
+        }
+
         _playerAnimatedSprite.Update(gameTime);
     }
 
@@ -111,6 +134,11 @@ public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Vect
         _playerAnimatedSprite.Effect = facingRight;
         spriteBatch.Draw(_playerAnimatedSprite, position, 0, new Vector2(scale));
         spriteBatch.End();
+    }
+
+    private void FireBullet()
+    {
+        gameInstance?.FireBullet(position, facingRight);
     }
 
     private bool WASDKeysPressed(Keys key) => key == Keys.W || key == Keys.S || key == Keys.A || key == Keys.D;

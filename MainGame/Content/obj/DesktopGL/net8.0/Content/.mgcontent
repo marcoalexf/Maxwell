@@ -4,9 +4,11 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/personal/Maxwell/MainGame/Content/CharacterSheet.png</File>
+    <File>C:/Users/Marco/Desktop/Maxwell/MainGame/Content/CharacterSheet.png</File>
+    <File>C:/Users/Marco/Desktop/Maxwell/MainGame/Content/player.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

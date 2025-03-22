@@ -32,11 +32,6 @@ namespace MainGame
             // Create a basic player
             _player = new Player(_spriteBatch, Content, new Vector2(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2));
             _player.LoadContent();
-
-            var topLeft = new Vector2(0, 0);
-            var topRight = new Vector2(_graphics.PreferredBackBufferWidth, 0);
-            var bottomLeft = new Vector2(0, _graphics.PreferredBackBufferHeight);
-            var bottomRight = new Vector2(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         }
 
         protected override void Update(GameTime gameTime)
@@ -52,7 +47,6 @@ namespace MainGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            // Draw the player and the opponent
             _player.Draw();
 
             base.Draw(gameTime);

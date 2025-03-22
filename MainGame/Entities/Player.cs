@@ -3,75 +3,115 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Animations;
+using MonoGame.Extended.Graphics;
+using MonoGame.Extended.Input.InputListeners;
+using System;
 using System.Diagnostics;
 
 namespace MainGame.Entities;
 
-public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Vector2 initialPosition = default)
+public class Player(SpriteBatch spriteBatch, ContentManager contentManager, Vector2 position = default)
 {
+    private SpriteSheet _spriteSheet;
+    private AnimatedSprite _playerAnimatedSprite;
 
-    // The reference to the AnimatedTexture for the character
-    private AnimatedTexture spriteTexture = new AnimatedTexture(Vector2.Zero, rotation, scale, depth);
-    // The rotation of the character on screen
-    private const float rotation = 0;
-    // The scale of the character, how big it is drawn
-    private const float scale = 0.5f;
-    // The draw order of the sprite
-    private const float depth = 0.5f;
+    private KeyboardListener _keyboardListener;
 
-    // How many frames/images are included in the animation
-    private const int frames = 8;
-    // How many frames should be drawn each second, how fast does the animation run?
-    private const int framesPerSec = 10;
-
-    private Viewport viewport;
-
-    protected Vector2 InputDirection = Vector2.Zero;
+    SpriteEffects facingRight = SpriteEffects.None;
 
     public void LoadContent()
     {
-        // "AnimatedCharacter" is the name of the sprite asset in the project.
-        spriteTexture.Load(contentManager, "CharacterSheet", frames, framesPerSec);
+        Texture2D playerTexture = contentManager.Load<Texture2D>("player");
+        Texture2DAtlas player = Texture2DAtlas.Create("Player/player", playerTexture, 50, 37);
+        _spriteSheet = new SpriteSheet("SpriteSheet/player", player);
+
+        _spriteSheet.DefineAnimation(PlayerAnimations.Attack.ToString(), builder =>
+        {
+            builder.IsLooping(true)
+                   .AddFrame(regionIndex: 0, duration: TimeSpan.FromSeconds(0.1))
+                   .AddFrame(1, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(2, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(3, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(4, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(5, TimeSpan.FromSeconds(0.1));
+        });
+
+        _spriteSheet.DefineAnimation(PlayerAnimations.Idle.ToString(), builder =>
+        {
+            builder.IsLooping(true)
+                    .AddFrame(regionIndex: 6, duration: TimeSpan.FromSeconds(0.1))
+                    .AddFrame(7, TimeSpan.FromSeconds(0.1))
+                    .AddFrame(8, TimeSpan.FromSeconds(0.1))
+                    .AddFrame(9, TimeSpan.FromSeconds(0.1));
+        });
+
+        _spriteSheet.DefineAnimation(PlayerAnimations.Move.ToString(), builder =>
+        {
+            builder.IsLooping(true)
+                   .AddFrame(10, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(11, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(12, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(13, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(14, TimeSpan.FromSeconds(0.1))
+                   .AddFrame(15, TimeSpan.FromSeconds(0.1));
+        });
+
+        _playerAnimatedSprite = new AnimatedSprite(_spriteSheet, PlayerAnimations.Idle.ToString());
+
+        _keyboardListener = new KeyboardListener();
+        _keyboardListener.KeyPressed += (sender, eventArgs) =>
+        {
+            Debug.WriteLine($"Current pressed key: {eventArgs.Key}");
+            if (WASDKeysPressed(eventArgs.Key))
+            {
+                _playerAnimatedSprite.SetAnimation(PlayerAnimations.Move.ToString());
+            } else if (eventArgs.Key == Keys.Enter) 
+            {
+                _playerAnimatedSprite.SetAnimation(PlayerAnimations.Attack.ToString());
+            }
+            else
+            {
+                _playerAnimatedSprite.SetAnimation(PlayerAnimations.Idle.ToString());
+            }
+        };
     }
 
     public void Update(GameTime gameTime)
     {
         // Get keyboard state
-        var keyboardState = Keyboard.GetState();
+        var state = Keyboard.GetState();
+        float speed = 200f; // Adjust speed as needed
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        InputDirection = Vector2.Zero;
+        _keyboardListener.Update(gameTime);
 
-        if (keyboardState.IsKeyDown(Keys.W))
-        {
-            InputDirection.Y -= 1;
+        if (state.IsKeyDown(Keys.W))
+            position.Y -= speed * deltaTime;
+        if (state.IsKeyDown(Keys.S))
+            position.Y += speed * deltaTime;
+        if (state.IsKeyDown(Keys.A))
+        { 
+            position.X -= speed * deltaTime;
+            facingRight = SpriteEffects.FlipHorizontally;
         }
-        if (keyboardState.IsKeyDown(Keys.S))
+        if (state.IsKeyDown(Keys.D))
         {
-            InputDirection.Y += 1;
-        }
-        if (keyboardState.IsKeyDown(Keys.A))
-        {
-            InputDirection.X -= 1;
-        }
-        if (keyboardState.IsKeyDown(Keys.D))
-        {
-            InputDirection.X += 1;
+            facingRight = SpriteEffects.None;
+            position.X += speed * deltaTime;
         }
 
-        InputDirection.Normalize();
-
-        // Assuming you have a position field to update
-        //initialPosition += InputDirection * 20 * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        spriteTexture.UpdateFrame(elapsed);
+        _playerAnimatedSprite.Update(gameTime);
     }
 
     public void Draw()
     {
-        spriteBatch.Begin();
-        Debug.WriteLine(initialPosition);
-        spriteTexture.DrawFrame(spriteBatch, initialPosition);
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        int scale = 3;
+        _playerAnimatedSprite.Effect = facingRight;
+        spriteBatch.Draw(_playerAnimatedSprite, position, 0, new Vector2(scale));
         spriteBatch.End();
     }
+
+    private bool WASDKeysPressed(Keys key) => key == Keys.W || key == Keys.S || key == Keys.A || key == Keys.D;
 }

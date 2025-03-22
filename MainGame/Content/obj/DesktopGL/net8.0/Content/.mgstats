@@ -1,2 +1,3 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/personal/Maxwell/MainGame/Content/CharacterSheet.png","C:/personal/Maxwell/MainGame/Content/bin/DesktopGL/Content/CharacterSheet.xnb","TextureProcessor","Texture2DContent",1367738,56000085,1.1228232
+"C:/Users/Marco/Desktop/Maxwell/MainGame/Content/CharacterSheet.png","C:/Users/Marco/Desktop/Maxwell/MainGame/Content/bin/DesktopGL/Content/CharacterSheet.xnb","TextureProcessor","Texture2DContent",1367738,56000085,0.6952228
+"C:/Users/Marco/Desktop/Maxwell/MainGame/Content/player.png","C:/Users/Marco/Desktop/Maxwell/MainGame/Content/bin/DesktopGL/Content/player.xnb","TextureProcessor","Texture2DContent",7935,151637,0.1322147
